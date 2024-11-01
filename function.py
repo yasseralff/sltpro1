@@ -7,10 +7,10 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
-#
-# for message in st.session_state.messages:
-#     with st.chat_message(message['role']):
-#         st.markdown(message['parts'])
+
+for message in st.session_state.messages:
+    with st.chat_message(message['role']):
+        st.markdown(message['parts'])
 
 def generate(uploaded_file):
     if uploaded_file is not None:
