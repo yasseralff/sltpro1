@@ -33,7 +33,7 @@ def generate(uploaded_file):
                 try:
                     result = model.generate_content(
                         [my_file, "\n\n",
-                         "Can you tell me what alphabet is it in American Sign Language? Please answer with format Alphabet: the answer"]
+                         "Can you tell me what alphabet is it in American Sign Language? Please answer with format The detected letter is {letter}"]
                     )
                     response_content = st.write(result.text)
                 except:
