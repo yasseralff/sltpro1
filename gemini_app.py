@@ -30,10 +30,10 @@ if uploaded_file is not None:
     )
 
     response_content = st.write(result.text)
-    st.session_state.messages.append(
-        {"role": 'assistant',
-         "parts": response_content}
-    )
+    # st.session_state.messages.append(
+    #     {"role": 'assistant',
+    #      "parts": response_content}
+    # )
 
 if prompt:=st.chat_input("Message"):
     msg = {
