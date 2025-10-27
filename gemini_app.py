@@ -4,6 +4,7 @@ import google.generativeai as genai
 import function
 import string
 import random
+import os
 
 # Настройка API ключа
 genai.configure(api_key=st.secrets["api_key"])
@@ -13,13 +14,13 @@ st.header("Sigra")
 st.subheader("Translate your sign language or train your gestures")
 
 # Выбор режима
-mode = st.radio("Choose mode:", ["Translate", "Train"])
+mode = st.radio("Choose mode:", ["Translate", "Train", "Train with Alphabet"])
 
-# Хранилище сессии
+# Состояние сессии
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Перевод жестов (основной режим)
+# Режим перевода
 if mode == "Translate":
     uploaded_file = st.file_uploader(
         "Upload an image file",
@@ -32,14 +33,14 @@ if mode == "Translate":
     if image_to_use:
         function.generate(image_to_use)
 
-# Тренировочный режим
+# Режим тренировки по жесту
 elif mode == "Train":
     if "target_letter" not in st.session_state:
         st.session_state.target_letter = random.choice(string.ascii_uppercase)
         st.session_state.score = 0
         st.session_state.attempts = 0
 
-    st.markdown(f"###Show the letter: **{st.session_state.target_letter}**")
+    st.markdown(f"### Show the letter: **{st.session_state.target_letter}**")
     train_image = st.camera_input("Take a photo with sign")
 
     if train_image:
@@ -56,3 +57,35 @@ elif mode == "Train":
             st.write(f"**Score:** {st.session_state.score} / {st.session_state.attempts}")
             if st.button("Next letter"):
                 st.session_state.target_letter = random.choice(string.ascii_uppercase)
+
+# Режим тренировки по изображениям алфавита
+elif mode == "Train with Alphabet":
+    alphabet = list(string.ascii_uppercase)
+    if "quiz_letter" not in st.session_state:
+        st.session_state.quiz_letter = random.choice(alphabet)
+        st.session_state.quiz_score = 0
+        st.session_state.quiz_round = 1
+
+    st.title("Guess the Letter by Sign")
+
+    image_path = os.path.join("images", f"{st.session_state.quiz_letter}.jpg")
+    if os.path.exists(image_path):
+        st.image(image_path, caption="What letter is this?", width=300)
+    else:
+        st.warning(f"Image not found for {st.session_state.quiz_letter}")
+
+    user_answer = st.selectbox("Choose the letter:", alphabet)
+
+    if st.button("Check Answer"):
+        if user_answer == st.session_state.quiz_letter:
+            st.success("✅ Correct!")
+            st.session_state.quiz_score += 1
+        else:
+            st.error(f"Incorrect. It was {st.session_state.quiz_letter}")
+
+    if st.button("Next Image"):
+        st.session_state.quiz_letter = random.choice(alphabet)
+        st.session_state.quiz_round += 1
+
+    st.write(f"Round: {st.session_state.quiz_round}")
+    st.write(f"Score: {st.session_state.quiz_score}")
